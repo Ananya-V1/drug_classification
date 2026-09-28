@@ -4,9 +4,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 # Load data
-metadata = pd.read_excel("NCI60_CELL_LINE_METADATA.xls", sheet_name="clc", skiprows=10, index_col=0)
-exp = pd.read_excel("RNA__Affy_HG_U133_Plus_2.0_RMA.xls", sheet_name="Results", skiprows=10, index_col=0)
-gi = pd.read_csv("/Users/ananya/drug_classification/GI50.csv")
+metadata = pd.read_excel("NCI60_CELL_LINE_METADATA.xls", sheet_name="clc", skiprows=10, index_col=0) # cancer cell line dataset
+exp = pd.read_excel("RNA__Affy_HG_U133_Plus_2.0_RMA.xls", sheet_name="Results", skiprows=10, index_col=0) # gene expression of genes in each cell line; grouped into cell lines 
+gi = pd.read_csv("/Users/ananya/drug_classification/GI50.csv") # concentration of drug needed to inhibit cell line's growth by 50%
 
 print(f"Expression matrix: {exp.shape}")
 
@@ -23,7 +23,7 @@ exp_clean = exp.drop(columns=cols)
 # Remove the prefix part (before the :) so the names match
 exp_clean.columns = [c.split(":")[1].strip() for c in exp_clean.columns]
 
-# Intersection between cell lines and expression
+# Intersection between cell lines and expression; 
 common = gi.index.intersection(exp_clean.columns)
 print(f"Common cell lines: {len(common)}")
 
@@ -75,12 +75,14 @@ probeset_to_gene = exp["Gene name d"].to_dict()
 gene_names = [probeset_to_gene.get(pid, pid) for pid in X.columns.tolist()]
 
 # Save values
-np.save("X_values.npy", X.values)
-np.save("X_pca.npy", X_pca)
-np.save("valid_drugs.npy", np.array(valid_drugs))
-np.save("sample_drugs.npy", np.array(sample_drugs))
-np.save("gene_names.npy", np.array(gene_names))
-gi_final.to_csv("gi_final.csv")
-pd.DataFrame({"cell_line": gi_final.index}).to_csv("cell_lines.csv", index=False)
+np.save("X_values.npy", X.values) # gene expression matrix
+np.save("X_pca.npy", X_pca) # PCA-reduced expression
+np.save("valid_drugs.npy", np.array(valid_drugs)) # drug response matrix
+np.save("sample_drugs.npy", np.array(sample_drugs)) 
+np.save("gene_names.npy", np.array(gene_names)) 
+gi_final.to_csv("gi_final.csv") # drug response matrix
+pd.DataFrame({"cell_line": gi_final.index}).to_csv("cell_lines.csv", index=False) # cell lines
 
 print("Saved: X_values.npy, X_pca.npy, gi_final.csv, valid_drugs.npy, sample_drugs.npy, gene_names.npy")
+
+
